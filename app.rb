@@ -7,7 +7,7 @@ class App
     unless @request.query_string.empty?
       create_response
     else
-      [200, headers, body]
+      [200, {}, []]
     end
   end
 
@@ -19,17 +19,9 @@ class App
     formatter.format_time
 
     if formatter.valid?
-      return [200, headers, formatter.formatted_time]
+      return [200, {}, formatter.formatted_time]
     else
-      return [400, headers, ["Unknown time format #{formatter.unsupported_formats}"]]
+      return [400, {}, ["Unknown time format #{formatter.unsupported_formats}"]]
     end
-  end
-
-  def headers
-    { 'Content-Type' => 'text/plain '}
-  end
-
-  def body
-    []
   end
 end

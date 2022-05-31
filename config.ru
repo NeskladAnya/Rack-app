@@ -6,3 +6,4 @@ ROUTES = {
 }
 
 run Rack::URLMap.new(ROUTES)
+use Rack::ContentType, 'text/plain'
