@@ -1,16 +1,11 @@
 class App
-  attr_reader :request, :response
+  attr_reader :request, :response, :formatter
 
   def call(env)
     @request = Rack::Request.new(env)
     @response = Rack::Response.new
 
-    unless @request.query_string.empty?
-      set_response
-    else
-      @response.status = 200
-      @response.body = []
-    end
+    set_response
 
     @response.finish
   end
@@ -18,16 +13,25 @@ class App
   private
 
   def set_response
-    formatter = FormatTime.new(@request)
+    if !request.query_string.empty?
+      format_time_in_body
 
-    formatter.format_time
-
-    if formatter.valid?
-      @response.status = 200
-      @response.body = formatter.formatted_time
+      if @formatter.valid?
+        @response.status = 200
+        @response.body = formatter.formatted_time
+      else
+        @response.status = 400
+        @response.body = ["Unknown time format #{formatter.unsupported_formats}"]
+      end
     else
-      @response.status = 400
-      @response.body = ["Unknown time format #{formatter.unsupported_formats}"]
+      @response.status = 200
+      @response.body = []
     end
+  end
+
+  def format_time_in_body
+    @formatter = FormatTime.new(@request)
+
+    @formatter.format_time
   end
 end

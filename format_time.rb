@@ -1,4 +1,9 @@
 class FormatTime
+  FORMATS = {
+    'year' => '%Y-', 'month' => '%m-', 'day' => '%d-',
+    'hour' => '%H:', 'minute' => '%M:', 'second' => '%S:'
+  }.freeze
+
   attr_reader :request, :unsupported_formats, :formatted_time
 
   def initialize(request)
@@ -8,35 +13,17 @@ class FormatTime
   end
 
   def format_time
-
     query = @request.query_string
     formats = query.split('=')[1].split('%2C')
 
-    format_string = ""
+    format_string = formats.map { |key| FORMATS[key] }.join
 
-    formats.each do |format|
-      case format
-      when "year"
-        format_string += "%Y-"
-      when "month"
-        format_string += "%m-"
-      when "day"
-        format_string += "%d-"
-      when "hour"
-        format_string += "%H:"
-      when "minute"
-        format_string += "%M:"
-      when "second"
-        format_string += "%S:"
-      else
-        @unsupported_formats.push(format)
-      end
-    end
+    @unsupported_formats = formats.difference(FORMATS.keys)
 
     @formatted_time = [Time.now.strftime(format_string)]
-  end 
+  end
 
   def valid?
-    @unsupported_formats.empty? ? true : false
+    @unsupported_formats.empty?
   end
 end
